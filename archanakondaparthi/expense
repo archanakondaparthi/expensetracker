@@ -1,0 +1,97 @@
+import json
+from datetime import datetime
+
+# File to store the expenses
+FILE_NAME = "expenses.json"
+
+# Load expenses from file
+def load_expenses():
+    try:
+        with open(FILE_NAME, "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return []
+
+# Save expenses to file
+def save_expenses(expenses):
+    with open(FILE_NAME, "w") as file:
+        json.dump(expenses, file, indent=4)
+
+# Add a new expense
+def add_expense(expenses):
+    try:
+        amount = float(input("Enter the amount spent: "))
+        category = input("Enter the category (e.g., food, travel, entertainment): ").capitalize()
+        description = input("Enter a brief description: ")
+        date = datetime.now().strftime("%Y-%m-%d")
+
+        expense = {
+            "date": date,
+            "amount": amount,
+            "category": category,
+            "description": description
+        }
+        expenses.append(expense)
+        save_expenses(expenses)
+        print("Expense added successfully.\n")
+    except ValueError:
+        print("Invalid input. Please enter numeric values for the amount.\n")
+
+# Show expense summary
+def show_summary(expenses):
+    if not expenses:
+        print("No expenses recorded.\n")
+        return
+
+    total = 0
+    category_summary = {}
+
+    for exp in expenses:
+        total += exp["amount"]
+        cat = exp["category"]
+        category_summary[cat] = category_summary.get(cat, 0) + exp["amount"]
+
+    print("\nExpense Summary:")
+    print(f"Total Expenses: ₹{total:.2f}")
+    for cat, amt in category_summary.items():
+        print(f"{cat}: ₹{amt:.2f}")
+    print()
+
+# Display all expenses
+def show_all_expenses(expenses):
+    if not expenses:
+        print("No expenses recorded.\n")
+        return
+
+    print("\nAll Expenses:")
+    for exp in expenses:
+        print(f"{exp['date']} - ₹{exp['amount']} - {exp['category']} - {exp['description']}")
+    print()
+
+# Main menu
+def main():
+    expenses = load_expenses()
+
+    while True:
+        print("Expense Tracker Menu")
+        print("1. Add Expense")
+        print("2. View All Expenses")
+        print("3. View Summary")
+        print("4. Exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            add_expense(expenses)
+        elif choice == "2":
+            show_all_expenses(expenses)
+        elif choice == "3":
+            show_summary(expenses)
+        elif choice == "4":
+            print("Exiting the Expense Tracker. Goodbye!")
+            break
+        else:
+            print("Invalid choice. Please try again.\n")
+
+if __name__ == "__main__":
+    main()
